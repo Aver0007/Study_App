@@ -1,10 +1,10 @@
 import React, {useState} from 'react'
-import Timer from './Timer'
+import PublicTimer from './PublicTimer'
 import Working from './Working'
-import './TimerApp.css'
+import './PublicTimerApp.css'
 import SettingsContext from './SettingsContext'
 
-function TimerApp() {
+function PublicTimerApp() {
     const [count, setCount] = useState(0)
 
     const[showSettings, setShowSettings]=useState(false);
@@ -21,10 +21,10 @@ function TimerApp() {
           showSettings,
           setShowSettings,
         }}>
-        {showSettings ? <Working/> : <Timer/> }
+        {showSettings ? <Working/> : <PublicTimer/> }
         </SettingsContext.Provider>
       </div>
     )
 }
 
-export default TimerApp
+export default PublicTimerApp;

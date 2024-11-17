@@ -1,0 +1,13 @@
+.thumb {
+    width: 40px; 
+    height: 40px; 
+    border-radius: 50%;
+    background-color: red; 
+    border: 2px solid #ccc; 
+    cursor: grab;
+  }
+  
+  .thumb.green
+  {
+      background-color: green;
+  }

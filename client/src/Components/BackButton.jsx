@@ -11,4 +11,4 @@ function BackButton({onClick}) {
       );
 }
 
-export default BackButton
+export default BackButton;

@@ -1,86 +1,159 @@
-// import express from 'express';
-// import cors from 'cors';
-// import bodyParser from 'body-parser';
-// import dotenv from 'dotenv';
-// import userRoutes from './routes/users.js'; // Import user routes
-// import sessionRoutes from './routes/sessions.js'; // Import session routes
-// import studyRoutes from './routes/study.js'; // Import study routes
-
-// // import pool from './config/database.js'; // Assuming your database configuration
-
-// dotenv.config();
-// const app = express();
-
-// app.use(bodyParser.json());
-// app.use(cors());
-
-// // Routes
-// app.use('/users', userRoutes);
-// app.use('/sessions', sessionRoutes);
-// app.use('/study', studyRoutes); // Include study routes
-
-// // Error handling middleware (should be defined last)
-// app.use((err, req, res, next) => {
-//   console.error(err.stack);
-//   res.status(500).send('Something broke!');
-// });
-
-// const PORT = process.env.PORT || 3000;
-// app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
 import express from 'express';
 import cors from 'cors';
-import pg from 'pg';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import pkg from 'pg';
+const { Pool } = pkg;
+import dotenv from 'dotenv';
 
-const app= express();
+dotenv.config();
+
+const app = express();
+const port = process.env.PORT || 5000;
+
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-const db= new pg.Client({
-    user: "postgres",
-    host: "localhost",
-    database: "login",
-    password: "Ayushi@2002",
-    port: 5432
-})
+// PostgreSQL configuration
+const pool = new Pool({
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_DATABASE,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
+});
 
+// Function to create tables if they don't exist
+async function createTables() {
+  try {
+    // Create users table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(255) NOT NULL UNIQUE,
+        password_hash TEXT NOT NULL
+      );
+    `);
 
-db.connect();
+    // Create study_sessions table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS study_sessions (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        duration_seconds INTEGER NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+    `);
 
-//register
+    console.log('Tables created or already exist');
+  } catch (error) {
+    console.error('Error creating tables:', error);
+  }
+}
 
-app.post('/register', async(req, res)=>
-{
-    const {username, password}= req.body;
-    try{
-        const result= await db.query('INSERT INTO users (username, password) VALUES ($1, $2) RETURNING id', [username, password]);
-        res.json({userId: result.rows[0].id});
+// Call createTables function after pool initialization
+createTables();
+
+// Routes
+// Login route
+app.post('/login', async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    const { rows } = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
+    if (rows.length === 0) {
+      return res.status(401).json({ message: 'Invalid username or password' });
     }
-    catch(error){
-        res.status(500).json({error: error.message});
+
+    const user = rows[0];
+    const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'Invalid username or password' });
     }
-})
 
-//login
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    res.json({ token });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
 
-app.post('/login', async(req, res)=>
-{
-    const {username, password} =req.body;
-    try {
-        const result = await db.query('SELECT * FROM users WHERE username = $1 AND password = $2', [username, password]);
-        if (result.rows.length > 0) {
-          res.json({ message: 'Login successful' });
-        } else {
-          res.status(401).json({ error: 'Invalid credentials' });
-        }
-      } catch (error) {
-        res.status(500).json({ error: error.message });
-      }
-})
+// Register route
+app.post('/register', async (req, res) => {
+  const { username, password } = req.body;
 
-app.listen(3000, ()=>
-    {
-        console.log("server is running on port 3000");
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10); // Hash the password
+
+    const query = 'INSERT INTO users (username, password_hash) VALUES ($1, $2) RETURNING *';
+    const values = [username, hashedPassword];
+    const result = await pool.query(query, values);
+
+    res.status(201).json({ message: 'User registered successfully' });
+  } catch (error) {
+    console.error('Error registering user:', error);
+    res.status(500).json({ message: 'Registration failed' });
+  }
+});
+
+// Middleware to verify JWT token
+const verifyToken = (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    return res.status(403).json({ message: 'Unauthorized' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.userId = decoded.userId;
+    next();
+  } catch (error) {
+    console.error('Token verification error:', error);
+    res.status(403).json({ message: 'Unauthorized' });
+  }
+};
+
+// Fetch user profile route
+app.get('/user', verifyToken, async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT username FROM users WHERE id = $1', [req.userId]);
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
     }
-)
+    const user = rows[0];
+    res.json(user);
+  } catch (error) {
+    console.error('Fetch user error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
 
+// Fetch study sessions route
+app.get('/studySessions', verifyToken, async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT * FROM study_sessions WHERE user_id = $1 ORDER BY created_at DESC', [req.userId]);
+    res.json(rows);
+  } catch (error) {
+    console.error('Fetch study sessions error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// Log study session route
+app.post('/studySessions', verifyToken, async (req, res) => {
+  const { duration } = req.body;
+  try {
+    await pool.query('INSERT INTO study_sessions (user_id, duration_seconds) VALUES ($1, $2)', [req.userId, duration]);
+    res.status(201).json({ message: 'Study session logged successfully' });
+  } catch (error) {
+    console.error('Log study session error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// Start server
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
+});

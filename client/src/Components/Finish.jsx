@@ -13,4 +13,4 @@ function Finish({ onClick }) {
       )
 }
 
-export default Finish
+export default Finish;

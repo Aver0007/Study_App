@@ -1,4 +1,6 @@
 import React from 'react';
+import moo1 from './moo1.jpg';
+import moo2 from './moo2.jpg';
 
 function Card() {
   return (
@@ -14,7 +16,7 @@ function Card() {
             <div className='card w-full h-full rounded-xl overflow-hidden'>
               <img
                 className='w-full h-full object-cover'
-                src='https://picsum.photos/id/237/200/300'
+                src={moo1}
                 alt='motivation'
               />
             </div>
@@ -24,7 +26,7 @@ function Card() {
             <div className='card w-full h-full rounded-xl overflow-hidden'>
               <img
                 className='w-full h-full object-cover'
-                src='https://picsum.photos/id/237/200/300'
+                src={moo2}
                 alt='motivation'
               />
             </div>
