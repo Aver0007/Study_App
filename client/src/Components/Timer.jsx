@@ -102,7 +102,7 @@ function Timer() {
       };
 
       // await axios.post('http://localhost:5000/studySessions', { duration: durationInSeconds }, config);
-      await axios.post('https://focus-hb01.onrender.com/studySessions', { duration: durationInSeconds }, config);
+      await axios.post('https://studytrackerbackend-4vmo.onrender.com/studySessions', { duration: durationInSeconds }, config);
       setIsSessionLogged(true);
     } catch (error) {
       console.error('Error logging session:', error);

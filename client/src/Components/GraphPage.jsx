@@ -27,7 +27,7 @@ function GraphPage() {
         };
 
         // const response = await axios.get('http://localhost:5000/studySessions', config);
-        const response = await axios.get('https://focus-hb01.onrender.com/studySessions', config);
+        const response = await axios.get('https://studytrackerbackend-4vmo.onrender.com/studySessions', config);
         generateChartData(response.data); // Generate chart data after fetching study sessions
       } catch (error) {
         console.error('Fetch study sessions error:', error.response?.data?.message || error.message);

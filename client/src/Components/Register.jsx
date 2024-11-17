@@ -12,7 +12,7 @@ function Register() {
     
     try {
       // const response = await axios.post('http://localhost:5000/register', { username, password });
-      const response = await axios.post('https://focus-hb01.onrender.com/register', { username, password });
+      const response = await axios.post('https://studytrackerbackend-4vmo.onrender.com/register', { username, password });
       console.log(response.data); // Log the response from backend
       
       // Redirect to login page after successful registration
