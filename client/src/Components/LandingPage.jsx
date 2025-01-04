@@ -20,7 +20,7 @@ function LandingPage() {
         <TimerApp />
       ) : (
         <>
-          {/* Reduced top margin to tighten the gap */}
+          {}
           <div className='text-structure mt-10 sm:mt-10 px-5 sm:px-20 text-center'>
             {["Track your", "Study journey", "EXCLUSIVELY"].map((item, index) => (
               <div key={index} className='masker'>

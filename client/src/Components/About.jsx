@@ -1,6 +1,5 @@
 import React from 'react';
-import clockImage from './clock.jpg'; // Make sure this path is correct
-
+import clockImage from './clock.jpg'; 
 function About() {
   return (
     <div id='about' className='w-full py-10 px-5 sm:py-20 sm:px-20 bg-lime-500 text-black'>
