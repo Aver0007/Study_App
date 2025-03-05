@@ -26,10 +26,10 @@ function Dashboard() {
         // const response = await axios.get('http://localhost:5000/user', config);
         const response = await axios.get('https://studytrackerbackend-4vmo.onrender.com/user', config);
         setUserName(response.data.username);
-        fetchStudySessions(token); // Fetch study sessions after fetching user data
+        fetchStudySessions(token); 
       } catch (error) {
         console.error('Fetch user data error:', error.response?.data?.message);
-        navigate('/login'); // Redirect to login on error
+        navigate('/login'); 
       }
     };
 
