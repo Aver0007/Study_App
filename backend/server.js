@@ -11,11 +11,11 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 5000;
 
-// Middleware
+
 app.use(cors());
 app.use(express.json());
 
-// PostgreSQL configuration
+
 const pool = new Pool({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
@@ -24,10 +24,9 @@ const pool = new Pool({
   port: process.env.DB_PORT,
 });
 
-// Function to create tables if they don't exist
+
 async function createTables() {
   try {
-    // Create users table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -36,7 +35,7 @@ async function createTables() {
       );
     `);
 
-    // Create study_sessions table
+
     await pool.query(`
       CREATE TABLE IF NOT EXISTS study_sessions (
         id SERIAL PRIMARY KEY,
@@ -52,11 +51,10 @@ async function createTables() {
   }
 }
 
-// Call createTables function after pool initialization
+
 createTables();
 
-// Routes
-// Login route
+
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
@@ -80,12 +78,12 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// Register route
+
 app.post('/register', async (req, res) => {
   const { username, password } = req.body;
 
   try {
-    const hashedPassword = await bcrypt.hash(password, 10); // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const query = 'INSERT INTO users (username, password_hash) VALUES ($1, $2) RETURNING *';
     const values = [username, hashedPassword];
@@ -98,7 +96,7 @@ app.post('/register', async (req, res) => {
   }
 });
 
-// Middleware to verify JWT token
+
 const verifyToken = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) {
@@ -115,7 +113,7 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-// Fetch user profile route
+
 app.get('/user', verifyToken, async (req, res) => {
   try {
     const { rows } = await pool.query('SELECT username FROM users WHERE id = $1', [req.userId]);
@@ -130,7 +128,7 @@ app.get('/user', verifyToken, async (req, res) => {
   }
 });
 
-// Fetch study sessions route
+
 app.get('/studySessions', verifyToken, async (req, res) => {
   try {
     const { rows } = await pool.query('SELECT * FROM study_sessions WHERE user_id = $1 ORDER BY created_at DESC', [req.userId]);
@@ -141,7 +139,7 @@ app.get('/studySessions', verifyToken, async (req, res) => {
   }
 });
 
-// Log study session route
+
 app.post('/studySessions', verifyToken, async (req, res) => {
   const { duration } = req.body;
   try {
@@ -153,7 +151,7 @@ app.post('/studySessions', verifyToken, async (req, res) => {
   }
 });
 
-// Start server
+
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
