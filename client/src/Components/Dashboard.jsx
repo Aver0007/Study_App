@@ -13,7 +13,7 @@ function Dashboard() {
       try {
         const token = localStorage.getItem('token');
         if (!token) {
-          navigate('/login'); // Redirect to login if token is not present
+          navigate('/login');
           return;
         }
 

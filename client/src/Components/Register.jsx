@@ -13,9 +13,8 @@ function Register() {
     try {
       // const response = await axios.post('http://localhost:5000/register', { username, password });
       const response = await axios.post('https://studytrackerbackend-4vmo.onrender.com/register', { username, password });
-      console.log(response.data); // Log the response from backend
+      console.log(response.data); 
       
-      // Redirect to login page after successful registration
       navigate('/login');
     } catch (error) {
       console.error('Registration failed:', error.response?.data);

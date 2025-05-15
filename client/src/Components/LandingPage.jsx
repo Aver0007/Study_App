@@ -32,7 +32,7 @@ function LandingPage() {
               </div>
             ))}
           </div>
-          {/* Reduced top margin to minimize the gap */}
+
           <div className='button mt-5 sm:mt-8 flex flex-col sm:flex-row justify-around items-center gap-5'>
             <div
               className='px-4 py-2 uppercase border-[1px] border-zinc-500 cursor-pointer hover:text-black hover:bg-amber-400 rounded-full transition duration-300'

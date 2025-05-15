@@ -16,7 +16,7 @@ function GraphPage() {
       try {
         const token = localStorage.getItem('token');
         if (!token) {
-          navigate('/login'); // Redirect to login if token is not present
+          navigate('/login'); 
           return;
         }
 
@@ -28,7 +28,7 @@ function GraphPage() {
 
         // const response = await axios.get('http://localhost:5000/studySessions', config);
         const response = await axios.get('https://studytrackerbackend-4vmo.onrender.com/studySessions', config);
-        generateChartData(response.data); // Generate chart data after fetching study sessions
+        generateChartData(response.data); 
       } catch (error) {
         console.error('Fetch study sessions error:', error.response?.data?.message || error.message);
         setError('Failed to fetch study sessions');

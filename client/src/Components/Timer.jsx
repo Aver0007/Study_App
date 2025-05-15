@@ -28,7 +28,7 @@ function Timer() {
     const nextSeconds = (nextMode === 'work' ? settingsInfo.workMinutes : settingsInfo.breakMinutes) * 60;
 
     if (modeRef.current === 'work') {
-      logSession(); // Log the session when work period ends
+      logSession(); 
     }
 
     setMode(nextMode);
@@ -55,7 +55,7 @@ function Timer() {
       if (!isPausedRef.current && secondsLeftRef.current > 0) {
         tick();
       }
-    }, 1000); // Change to 1000ms for 1-second intervals
+    }, 1000); 
   }
 
   function initTimer() {

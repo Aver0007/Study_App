@@ -14,7 +14,7 @@ import Dashboard from './Components/Dashboard';
 import GraphPage from './Components/GraphPage';
 
 function App() {
-  const isAuthenticated = !!localStorage.getItem('token'); // Check if user is authenticated
+  const isAuthenticated = !!localStorage.getItem('token'); 
 
   return (
     <Router>
